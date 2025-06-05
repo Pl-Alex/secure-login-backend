@@ -1,12 +1,17 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
 const prisma = require("./prisma/client");
 require("dotenv").config();
 
+const authRoutes = require("./routes/auth");
+const protectedRoutes = require("./routes/protected");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
+app.use("/api/protected", protectedRoutes);
 
 // Example route
 app.get("/", (req, res) => {
