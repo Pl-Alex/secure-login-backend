@@ -57,6 +57,7 @@ router.post("/login", async (req, res) => {
     if (user.is2FAEnabled) {
       return res.status(200).json({
         message: "2FA required",
+        requires2FA: true,
         userId: user.id,
       });
     }
@@ -69,6 +70,7 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({
       message: "Zalogowano pomyślnie.",
+      requires2FA: false,
       token,
     });
   } catch (error) {

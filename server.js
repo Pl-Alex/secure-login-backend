@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
 const protectedRoutes = require("./routes/protected");
+const twoFARoutes = require("./routes/2fa");
 
 const app = express();
 app.use(cors());
@@ -12,11 +13,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/protected", protectedRoutes);
-
-// Example route
-app.get("/", (req, res) => {
-  res.send("Secure Login Backend is running!");
-});
+app.use("/api/2fa", twoFARoutes);
 
 app.get("/users", async (req, res) => {
   try {
