@@ -1,6 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const prisma = require("./prisma/client");
+const {
+  apiLimiter,
+  authLimiter,
+  twoFALimiter,
+} = require("./middleware/rateLimiter");
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
@@ -8,22 +13,19 @@ const protectedRoutes = require("./routes/protected");
 const twoFARoutes = require("./routes/2fa");
 
 const app = express();
-app.use(cors());
+app.use(apiLimiter);
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3001",
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: "10mb" }));
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/protected", protectedRoutes);
-app.use("/api/2fa", twoFARoutes);
-
-app.get("/users", async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.json(users);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Failed to fetch users" });
-  }
-});
+app.use("/api/2fa", twoFALimiter, twoFARoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
